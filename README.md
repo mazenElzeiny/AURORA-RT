@@ -370,6 +370,17 @@ For questions or issues:
 
 ---
 
+## Contributors
+
+See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the full list of contributors.
+
+| Name | Email |
+|------|-------|
+| Maryam Khalid | Maryam.Khalid06@eng-st.cu.edu.eg |
+| Aya Abdullah | Aya.Abdullah06@eng-st.cu.edu.eg |
+
+---
+
 ## Acknowledgments
 
 - Literature sources for parameter validation
