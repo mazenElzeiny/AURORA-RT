@@ -1,0 +1,144 @@
+##############################################################
+# TOPAS Parameter File: Cherenkov_3band_wavelength_debug.txt
+# Purpose: Validated 3-band Cherenkov fluence model.
+# Notes:
+#   - Uses proven production physics settings.
+#   - History count is currently set to 1,000,000.
+#   - Includes one unfiltered optical fluence scorer to isolate
+#     whether zero values come from generation or KE filtering.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# WORLD
+# -----------------------------------------------------------------------------
+s:Ge/World/Material  = "Air"
+d:Ge/World/HLX       = 1.0 m
+d:Ge/World/HLY       = 1.0 m
+d:Ge/World/HLZ       = 1.0 m
+b:Ge/World/Invisible = "True"
+
+# -----------------------------------------------------------------------------
+# WATER PHANTOM (30x30x30 cm with 30x30x60 scoring bins)
+# -----------------------------------------------------------------------------
+s:Ge/WaterPhantom/Type     = "TsBox"
+s:Ge/WaterPhantom/Parent   = "World"
+s:Ge/WaterPhantom/Material = "MyWater"
+d:Ge/WaterPhantom/HLX      = 15.0 cm
+d:Ge/WaterPhantom/HLY      = 15.0 cm
+d:Ge/WaterPhantom/HLZ      = 15.0 cm
+d:Ge/WaterPhantom/TransX   = 0.0 cm
+d:Ge/WaterPhantom/TransY   = 0.0 cm
+d:Ge/WaterPhantom/TransZ   = 0.0 cm
+
+# -----------------------------------------------------------------------------
+# CUSTOM WATER WITH OPTICAL PROPERTIES EXTENDED TO 850 NM
+# -----------------------------------------------------------------------------
+sv:Ma/MyWater/Components = 2 "Hydrogen" "Oxygen"
+uv:Ma/MyWater/Fractions  = 2 0.111894 0.888106
+d:Ma/MyWater/Density     = 1.0 g/cm3
+
+dv:Ma/MyWater/RefractiveIndex/Energies = 6 1.4334 1.7340 1.9223 2.2143 2.5498 3.2690 eV
+uv:Ma/MyWater/RefractiveIndex/Values   = 6 1.3330 1.3330 1.3330 1.3335 1.3340 1.3350
+
+dv:Ma/MyWater/AbsLength/Energies = 6 1.4334 1.7340 1.9223 2.2143 2.5498 3.2690 eV
+dv:Ma/MyWater/AbsLength/Values   = 6 100.0 100.0 100.0 100.0 100.0 100.0 m
+
+# -----------------------------------------------------------------------------
+# PHYSICS
+# -----------------------------------------------------------------------------
+sv:Ph/Default/Modules = 2 "g4em-standard_opt4" "g4optical"
+
+b:Ph/Default/Optical/Cerenkov = "True"
+i:Ph/Default/Optical/CerenkovMaxPhotonsPerStep = 100
+u:Ph/Default/Optical/CerenkovMaxBetaChangePerStep = 0.1
+b:Ph/Default/Optical/Scintillation = "False"
+
+d:Ph/Default/CutForAllParticles = 0.1 mm
+
+# -----------------------------------------------------------------------------
+# SOURCE: 6 MeV GAMMA (step-2 validation)
+# -----------------------------------------------------------------------------
+s:So/Beam/Type                     = "Beam"
+s:So/Beam/Component                = "World"
+s:So/Beam/BeamParticle             = "gamma"
+d:So/Beam/BeamEnergy               = 6.0 MeV
+u:So/Beam/BeamEnergySpread         = 0.0
+
+d:So/Beam/BeamPositionX            = 0.0 cm
+d:So/Beam/BeamPositionY            = 0.0 cm
+d:So/Beam/BeamPositionZ            = -50.0 cm
+
+s:So/Beam/BeamPositionDistribution = "Flat"
+s:So/Beam/BeamPositionCutoffShape  = "Rectangle"
+d:So/Beam/BeamPositionCutoffX      = 5.0 cm
+d:So/Beam/BeamPositionCutoffY      = 5.0 cm
+
+s:So/Beam/BeamAngularDistribution  = "None"
+i:So/Beam/NumberOfHistoriesInRun   = 1000000
+
+# -----------------------------------------------------------------------------
+# DEBUG SCORER: ALL OPTICAL PHOTON FLUENCE (no KE filter)
+# -----------------------------------------------------------------------------
+s:Sc/Fluence_OpticalAll/Quantity                  = "Fluence"
+s:Sc/Fluence_OpticalAll/Component                 = "WaterPhantom"
+s:Sc/Fluence_OpticalAll/OutputFile                = "Fluence_OpticalAll"
+s:Sc/Fluence_OpticalAll/OutputType                = "csv"
+s:Sc/Fluence_OpticalAll/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/Fluence_OpticalAll/XBins = 30
+i:Sc/Fluence_OpticalAll/YBins = 30
+i:Sc/Fluence_OpticalAll/ZBins = 60
+sv:Sc/Fluence_OpticalAll/OnlyIncludeParticlesNamed = 1 "opticalphoton"
+
+# -----------------------------------------------------------------------------
+# SCORER: 630 NM BAND (615-645 nm => 1.9223 to 2.0160 eV)
+# -----------------------------------------------------------------------------
+s:Sc/Fluence_630nm/Quantity                  = "Fluence"
+s:Sc/Fluence_630nm/Component                 = "WaterPhantom"
+s:Sc/Fluence_630nm/OutputFile                = "Fluence_630nm"
+s:Sc/Fluence_630nm/OutputType                = "csv"
+s:Sc/Fluence_630nm/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/Fluence_630nm/XBins = 30
+i:Sc/Fluence_630nm/YBins = 30
+i:Sc/Fluence_630nm/ZBins = 60
+sv:Sc/Fluence_630nm/OnlyIncludeParticlesNamed      = 1 "opticalphoton"
+d:Sc/Fluence_630nm/OnlyIncludeParticlesWithKEAbove = 1.9223 eV
+d:Sc/Fluence_630nm/OnlyIncludeParticlesWithKEBelow = 2.0160 eV
+
+# -----------------------------------------------------------------------------
+# SCORER: 700 NM BAND (685-715 nm => 1.7340 to 1.8100 eV)
+# -----------------------------------------------------------------------------
+s:Sc/Fluence_700nm/Quantity                  = "Fluence"
+s:Sc/Fluence_700nm/Component                 = "WaterPhantom"
+s:Sc/Fluence_700nm/OutputFile                = "Fluence_700nm"
+s:Sc/Fluence_700nm/OutputType                = "csv"
+s:Sc/Fluence_700nm/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/Fluence_700nm/XBins = 30
+i:Sc/Fluence_700nm/YBins = 30
+i:Sc/Fluence_700nm/ZBins = 60
+sv:Sc/Fluence_700nm/OnlyIncludeParticlesNamed      = 1 "opticalphoton"
+d:Sc/Fluence_700nm/OnlyIncludeParticlesWithKEAbove = 1.7340 eV
+d:Sc/Fluence_700nm/OnlyIncludeParticlesWithKEBelow = 1.8100 eV
+
+# -----------------------------------------------------------------------------
+# SCORER: 850 NM BAND (835-865 nm => 1.4334 to 1.4849 eV)
+# -----------------------------------------------------------------------------
+s:Sc/Fluence_850nm/Quantity                  = "Fluence"
+s:Sc/Fluence_850nm/Component                 = "WaterPhantom"
+s:Sc/Fluence_850nm/OutputFile                = "Fluence_850nm"
+s:Sc/Fluence_850nm/OutputType                = "csv"
+s:Sc/Fluence_850nm/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/Fluence_850nm/XBins = 30
+i:Sc/Fluence_850nm/YBins = 30
+i:Sc/Fluence_850nm/ZBins = 60
+sv:Sc/Fluence_850nm/OnlyIncludeParticlesNamed      = 1 "opticalphoton"
+d:Sc/Fluence_850nm/OnlyIncludeParticlesWithKEAbove = 1.4334 eV
+d:Sc/Fluence_850nm/OnlyIncludeParticlesWithKEBelow = 1.4849 eV
+
+# -----------------------------------------------------------------------------
+# RUNTIME
+# -----------------------------------------------------------------------------
+i:Ts/ShowHistoryCountAtInterval = 1000
+b:Ts/PauseBeforeQuit            = "False"
+i:Ts/NumberOfThreads            = 1
+i:Ts/Seed                       = 12345
