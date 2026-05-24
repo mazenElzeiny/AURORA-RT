@@ -1,6 +1,10 @@
 <div align="center">
 
-# 🩺 Real-Time Oxygen-Guided Adaptive Radiation Therapy
+# ☢️ AURORA-RT
+
+### **A**utonomous · **O**xy-Responsive · **R**adiotherapy · **A**pproach — **R**eal-**T**ime
+
+> 🩺 *Real-Time Oxygen-Guided Adaptive Radiation Therapy*
 
 **A Digital Twin simulation framework for Cherenkov-guided, hypoxia-mediated adaptive radiotherapy**
 
@@ -125,10 +129,8 @@ Dose_generated_from_resampled.csv  ← format: x, y, z, Dose
 Clone the NIRFAST repository from GitHub:
 
 ```bash
-git clone <NIRFAST_GITHUB_LINK_HERE>
+git clone https://github.com/milabuob/nirfaster-uFF.git
 ```
-
-> 📌 **Replace `<NIRFAST_GITHUB_LINK_HERE>`** with the actual NIRFAST repository URL before publishing.
 
 After cloning, navigate into `nirfast-uff/demo/` — all following steps apply inside that folder.
 
@@ -220,15 +222,13 @@ Run all cells **in order** — the notebook is self-contained and will:
 Developed by students of the **Biomedical Engineering Department, Cairo University**
 under the supervision of **Dr. Sherif ElGohary**
 
-| 👤 Name | 🔗 LinkedIn | 💻 GitHub |
-|---------|------------|----------|
-| <!-- Mazen Mohamed --> | [LinkedIn](#) | [GitHub](#) |
-| <!-- Aya Sayed --> | [LinkedIn](#) | [GitHub](#) |
-| <!-- Maryam Moustafa --> | [LinkedIn](#) | [GitHub](#) |
-| <!-- Engy Wael --> | [LinkedIn](#) | [GitHub](#) |
-| <!-- Engy Mohamed --> | [LinkedIn](#) | [GitHub](#) |
-
-> 📌 **Fill in names, LinkedIn profile URLs, and GitHub profile URLs above before publishing.**
+| 👤 Name | 💻 GitHub | 🔗 LinkedIn |
+|---------|----------|------------|
+| Aya Sayed | [GitHub](https://github.com/14930) | [LinkedIn](https://www.linkedin.com/in/aya-sayed-bb6a80397) |
+| Mazen Mohamed | [GitHub](https://github.com/mazenElzeiny) | [LinkedIn](https://www.linkedin.com/in/mazenelzeiny) |
+| Maryam Moustafa | [GitHub](https://github.com/maryamkhalid-06) | [LinkedIn](https://www.linkedin.com/in/maryam-moustafa-653257378) |
+| Engy Wael | [GitHub](https://github.com/engy27005) | [LinkedIn](https://www.linkedin.com/in/engy-wael-284277342/) |
+| Engy Mohamed | [GitHub](https://github.com/engyelsarta) | [LinkedIn](https://www.linkedin.com/in/engy-elsarta-6a6a06283) |
 
 ---
 
