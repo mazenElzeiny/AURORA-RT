@@ -1,400 +1,241 @@
-# Cherenkov-Based Adaptive Radiotherapy
-## Publication Package
+<div align="center">
 
-**Real-time adaptive dose modulation using Cherenkov imaging of tissue oxygenation**
+# 🩺 Real-Time Oxygen-Guided Adaptive Radiation Therapy
 
----
+**A Digital Twin simulation framework for Cherenkov-guided, hypoxia-mediated adaptive radiotherapy**
 
-## Overview
+Integrating TOPAS Monte Carlo · NIRFAST optical diffusion · Virtual ICCD sensing · Deliverability-constrained dose optimization
 
-This repository contains the publication-ready implementation of an adaptive radiotherapy framework that uses Cherenkov optical imaging to monitor tissue oxygenation (StO₂) and modulate radiation dose in real-time based on tumor hypoxia.
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![TOPAS](https://img.shields.io/badge/TOPAS-v3.7-00897B?style=for-the-badge)
+![Geant4](https://img.shields.io/badge/Geant4-10.7-1565C0?style=for-the-badge)
+![NIRFAST](https://img.shields.io/badge/NIRFAST-optical--diffusion-6A1B9A?style=for-the-badge)
+![License](https://img.shields.io/badge/License-Academic-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Proof--of--Concept-brightgreen?style=for-the-badge)
 
-**Status:** ✓ Publication-Ready  
-**Version:** 1.0  
-**Date:** February 2026  
-**License:** MIT
-
----
-
-## Key Features
-
-- **Real-time monitoring:** Cherenkov-based StO₂ mapping
-- **Adaptive modulation:** OER-based dose boost to hypoxic regions  
-- **Iterative reconstruction:** Gradient descent with Tikhonov regularization
-- **Statistical validation:** p < 0.001, effect size analysis
-- **Literature-validated:** All parameters from peer-reviewed sources
+</div>
 
 ---
 
-## Repository Contents
+## 📋 Table of Contents
+
+- [Overview](#-overview)
+- [Key Results](#-key-results)
+- [TOPAS Model Configuration](#-topas-model-configuration)
+- [Setup Instructions](#️-setup-instructions)
+  - [1. Clone NIRFAST](#1-clone-nirfast)
+  - [2. Place the Demo Notebook](#2-place-the-demo-notebook)
+  - [3. Add the Data Files](#3-add-the-data-files)
+- [Running the Demo](#-running-the-demo)
+- [Project Structure](#-project-structure)
+- [Team](#-team)
+
+---
+
+## 🔬 Overview
+
+This project implements a four-phase Digital Twin pipeline for in silico prototyping of biologically adaptive radiotherapy driven by real-time Cherenkov emission:
+
+| Phase | Module | Description |
+|-------|--------|-------------|
+| ⚛️ **I — Physics** | TOPAS / Geant4 | Monte Carlo radiation transport, secondary electron tracking & Cherenkov photon generation via Frank–Tamm model |
+| 🌊 **II — Sensing** | NIRFAST + ICCD model | Optical diffusion transport to tissue surface; virtual intensified CCD camera with shot & read noise |
+| 🧮 **III — Recovery** | Red Reference + NNLS | Beer-Lambert melanin correction across 100 Fitzpatrick skin phenotypes; affine calibration for low-dose regimes |
+| 🎯 **IV — Adaptation** | Dose optimizer | Hypoxia classification at 70% StO₂ threshold; locked dose-weighted enhancement (α = 0.12) |
+
+---
+
+## 📊 Key Results
+
+Results on the **TOPAS TumorPhantom** (10⁷ particle histories — low-dose stress-test regime):
+
+| Metric | Value |
+|--------|-------|
+| 🎯 Calibrated StO₂ recovery — MAE | **1.55 pp** |
+| 📈 Calibrated StO₂ recovery — R² | **0.964** (N = 1534 voxels) |
+| ✅ Hypoxia classification — Precision | **0.993** |
+| 🔁 Hypoxia classification — Recall | **0.979** |
+| 🏅 Hypoxia classification — F1 | **0.986** |
+| 🟩 Confusion matrix | TP=139 · FP=1 · FN=3 · TN=1391 |
+| 💉 Hypoxic burden reduction (α=0.12) | **63.38%** (142 → 52 voxels) |
+
+> Computational benchmark under idealized conditions (comparative reference): R²=0.97, MAE=0.80 pp, hypoxia reduction 86.7% over 10 fractions.
+
+---
+
+## ⚙️ TOPAS Model Configuration
+
+The Cherenkov 3-band wavelength model (`Cherenkov_3band_wavelength_debug.txt`) used to generate all input fluence files is configured as follows:
+
+### 🏗️ Geometry
+
+| Parameter | Value |
+|-----------|-------|
+| World volume | 2.0 m × 2.0 m × 2.0 m (half-lengths: 1.0 m each) |
+| Water phantom | 30 cm × 30 cm × 30 cm (half-lengths: 15.0 cm each) |
+| Scoring grid | 30 × 30 × 60 voxels |
+| Voxel size | 1.0 cm × 1.0 cm × 0.5 cm |
+| Total scored voxels (per file) | 54,000 |
+
+### 🔦 Beam & Run Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Source particle | gamma |
+| Beam energy | 6.0 MeV |
+| Histories per run | 1,000,000 |
+| Threads | 1 |
+| Random seed | 12345 |
+
+### 🌈 Optical Bands Scored
+
+| Output File | Band | Energy Range |
+|-------------|------|-------------|
+| `Fluence_OpticalAll.csv` | All optical photons (no KE filter) | — |
+| `Fluence_630nm.csv` | 615 – 645 nm | 1.9223 – 2.0160 eV |
+| `Fluence_700nm.csv` | 685 – 715 nm | 1.7340 – 1.8100 eV |
+| `Fluence_850nm.csv` | 835 – 865 nm | 1.4334 – 1.4849 eV |
+
+### 🖥️ Run Command (WSL / PowerShell)
+
+```powershell
+wsl -e bash -lc "export TOPAS_G4_DATA_DIR=/home/mazen/topas/G4Data; cd /mnt/c/Users/HP/Desktop/Projects/MedicalPhysc\ Comp; /home/mazen/topas/bin/topas Cherenkov_3band_wavelength_debug.txt"
+```
+
+### 📁 Expected Output Files
 
 ```
-📁 Cherenkov_Adaptive_Radiotherapy_Publication/
-│
-├── 📄 README.md                          # This file
-├── 📄 PUBLICATION_CHECKLIST.md           # Submission checklist & guidelines
-├── 📄 METHODS_DOCUMENTATION.md           # Complete technical documentation
-├── 📄 requirements.txt                   # Python dependencies
-│
-├── 🐍 adaptive_dose_modulation.py        # Main implementation
-├── 🐍 forward_model.py                   # Optical transport simulation
-│
-├── 📊 CherenkovSource.npy                # Synthetic Cherenkov data (50×50×50)
-├── 📊 Dose.npy                           # Synthetic dose distribution (50×50×50)
-├── 📊 metadata.json                      # Simulation metadata
-├── 📊 optical_config.json                # Optical properties
-│
-├── 📈 results.json                       # Validated results (JSON)
-├── 🖼️ publication_figure.png             # Publication-quality figure (300 DPI)
-│
-└── 📁 supplementary/                     # TOPAS Monte Carlo Validation
-    ├── TOPAS_VALIDATION.md               # Detailed validation analysis
-    ├── clinical_topas_adaptive.py        # Real TOPAS implementation
-    ├── clinical_topas_adaptive_results.png
-    └── clinical_topas_results.json
+Fluence_OpticalAll.csv
+Fluence_630nm.csv
+Fluence_700nm.csv
+Fluence_850nm.csv
+Dose_resampled_30x30x60.npy        ← resampled from DoseRef.npy
+Dose_generated_from_resampled.csv  ← format: x, y, z, Dose
 ```
+
+> 💡 `Fluence_OpticalAll.csv` is included for debugging and cross-verification of band-filtered outputs.
+> The resampled dose volume was generated from the high-resolution `DoseRef.npy` onto the 30×30×60 voxel grid to match fluence scorer dimensions.
 
 ---
 
-## Quick Start
+## 🛠️ Setup Instructions
 
-### Installation
+### 1. Clone NIRFAST
+
+Clone the NIRFAST repository from GitHub:
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+git clone <NIRFAST_GITHUB_LINK_HERE>
 ```
 
-### Run Simulation
+> 📌 **Replace `<NIRFAST_GITHUB_LINK_HERE>`** with the actual NIRFAST repository URL before publishing.
+
+After cloning, navigate into `nirfast-uff/demo/` — all following steps apply inside that folder.
+
+---
+
+### 2. Place the Demo Notebook
+
+Replace the existing `demo_start.ipynb` inside the `demo` folder with the updated notebook from this repository:
+
+```
+nirfast-uff/
+└── demo/
+    └── demo_start.ipynb   ← 🔁 replace this with the file from this repo
+```
+
+Via terminal:
 
 ```bash
-python adaptive_dose_modulation.py
-```
-
-**Output:**
-- `optimized_adaptive_results.png` - Publication figure
-- `optimized_results.json` - Complete metrics
-
----
-
-## Validated Results
-
-**Initial State:**
-- StO₂: 75.6% ± 5.8%
-- Hypoxic fraction: 16.9%
-- Dose: 19.4 ± 25.4 Gy
-
-**After 10 Adaptive Fractions:**
-- StO₂: 76.5% ± 4.3%
-- Hypoxic fraction: 2.3%
-- Dose: 19.8 ± 25.8 Gy
-
-**Therapeutic Outcomes:**
-- StO₂ improvement: +0.82 percentage points
-- Hypoxic reduction: **86.3%** (16.9% → 2.3%)
-- Mean dose boost: 0.65 Gy to hypoxic regions
-- Statistical significance: **p < 0.001**
-
----
-
-## Scientific Approach
-
-### Computational Phantom
-
-This work uses a **50×50×50 voxel computational phantom** with synthetic dose and Cherenkov distributions to validate the adaptive framework. While the underlying radiation data is computationally generated rather than from full Monte Carlo simulations, **all biological parameters are derived from peer-reviewed clinical measurements:**
-
-- **Tumor oxygenation:** Vaupel & Mayer (2007) - 15-40% hypoxic fraction
-- **Reoxygenation kinetics:** Tannock (1998) - 0.025% StO₂ per Gy
-- **Oxygen Enhancement Ratio:** Hall & Giaccia (2012) - OER = 2.8
-- **Temporal dynamics:** Brown & Wilson (2004)
-
-**Justification:**  
-This approach is standard for methods development papers where the focus is on validating the algorithmic framework (iterative reconstruction, adaptive modulation) rather than specific anatomical accuracy.
-
----
-
-## Algorithm Overview
-
-### 1. Iterative Reconstruction
-
-StO₂ maps reconstructed using gradient descent:
-
-```
-Cost Function: C(StO₂) = ||I_measured - I_simulated(StO₂)||² + λ||StO₂ - StO₂_prior||²
-
-Regularization: λ = 0.01 (Tikhonov)
-Convergence: ΔC < 0.001 within 10 iterations
-```
-
-### 2. Adaptive Dose Modulation
-
-OER-based hypoxic targeting:
-
-```
-Boost Factor: f = 1 + 0.22 × (0.70 - StO₂) / 0.70  [for StO₂ < 0.70]
-Max Boost: 22% (clinical IMRT guidelines)
-Response: 0.025% StO₂ per Gy (Tannock 1998)
-```
-
-### 3. Biological Response Model
-
-```python
-ΔStO₂ = α × ΔDose × temporal_decay × OER_sensitivity
-where:
-  α = 0.025 (Tannock 1998: 0.02-0.03% range)
-  OER = 2.8 (Hall & Giaccia 2012: 2.5-3.0 range)
-  temporal_decay = exp(-0.18 × fraction)
+cp path/to/this/repo/demo_start.ipynb path/to/nirfast-uff/demo/demo_start.ipynb
 ```
 
 ---
 
-## Literature References
+### 3. Add the Data Files
 
-All parameters validated against peer-reviewed sources:
+A `data.zip` archive is provided in this repository containing all fluence maps, dose files, and supporting CSVs required by the notebook.
 
-1. **Vaupel P, Mayer A (2007)** "Hypoxia in cancer: significance and impact on clinical outcome"  
-   *Cancer Metastasis Rev* 26:225-239
+**Steps:**
 
-2. **Tannock IF (1998)** "Conventional cancer therapy: promise broken or promise delayed?"  
-   *Radiother Oncol* 48:123-126
+1. 📥 Download `data.zip`
+2. 📂 Extract its contents
+3. 📋 Place **all extracted files** directly inside `nirfast-uff/demo/`:
 
-3. **Hall EJ, Giaccia AJ (2012)** *Radiobiology for the Radiologist*, 7th Edition  
-   Lippincott Williams & Wilkins
-
-4. **Brown JM, Wilson WR (2004)** "Exploiting tumour hypoxia in cancer treatment"  
-   *Nat Rev Cancer* 4:437-447
-
-5. **Horsman MR, et al (2012)** "Imaging hypoxia to improve radiotherapy outcome"  
-   *Nat Rev Clin Oncol* 9:674-687
-
----
-
-## Technical Specifications
-
-**Computational Requirements:**
-- Python 3.10+
-- RAM: 4 GB minimum
-- Processing time: ~10 seconds
-
-**Data Format:**
-- Voxel size: 0.1 × 0.1 × 0.1 cm
-- Grid: 50 × 50 × 50 voxels
-- Physical extent: 5 × 5 × 5 cm
-
-**Validation Criteria:**
-- ✓ StO₂ in physiological range (40-92%)
-- ✓ Hypoxic fraction matches literature (15-40%)
-- ✓ Statistical significance (p < 0.05)
-- ✓ Clinically meaningful outcomes (>20% hypoxic reduction)
-- ✓ Dose constraints met (<30% modulation)
-
----
-
-## Publication Guidelines
-
-### For Journal Submission
-
-**Main Text Figure:**  
-Use `publication_figure.png` (12-panel comprehensive analysis)
-
-**Methods Section:**  
-Include computational phantom disclosure from METHODS_DOCUMENTATION.md
-
-**Results:**  
-All metrics available in `results.json`
-
-**Supplementary Material:**  
-- Complete code (this repository)
-- Parameter sensitivity analysis
-- Additional validation figures
-
-### Citation
-
-If you use this code, please cite:
-
-```bibtex
-@article{YourName2026,
-  title={Cherenkov-Based Adaptive Radiotherapy with Real-Time Tissue Oxygenation Monitoring},
-  author={Your Name},
-  journal={Medical Physics},
-  year={2026},
-  note={Code: github.com/yourrepo/cherenkov-adaptive}
-}
+```
+nirfast-uff/
+└── demo/
+    ├── demo_start.ipynb
+    ├── Fluence_OpticalAll.csv
+    ├── Fluence_630nm.csv
+    ├── Fluence_700nm.csv
+    ├── Fluence_850nm.csv
+    ├── Dose_resampled_30x30x60.npy
+    ├── Dose_generated_from_resampled.csv
+    └── ... (all other extracted files)
 ```
 
+> ⚠️ **Important:** Do **not** place files inside a nested subfolder. They must sit at the **same level** as `demo_start.ipynb`.
+
 ---
 
-## Reproducibility
+## 🚀 Running the Demo
 
-**Random Seed:** 42 (fixed in code)  
-**Version Control:** All parameters documented in code headers  
-**Results JSON:** Contains complete metadata for reproducibility
+Once setup is complete:
 
-To reproduce results exactly:
 ```bash
-python adaptive_dose_modulation.py
-# Compare optimized_results.json with provided results.json
+# Navigate to the demo folder
+cd path/to/nirfast-uff/demo
+
+# Launch Jupyter
+jupyter notebook demo_start.ipynb
+```
+
+Run all cells **in order** — the notebook is self-contained and will:
+- Load fluence and dose maps
+- Apply melanin correction across 100 skin phenotypes
+- Run the non-circular Beer-Lambert validation
+- Produce all result figures and CSV summaries automatically
+
+**🐍 Dependencies:** Python 3.9+, NumPy, SciPy, Pandas, Matplotlib — standard scientific Python packages.
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── 📓 demo_start.ipynb                    # Main demo notebook → place in nirfast-uff/demo/
+├── 🗜️  data.zip                            # Input data archive → extract into nirfast-uff/demo/
+├── 🐍 patch_cell_v2.py                    # Non-circular DPF validation patch cell
+├── 📄 Cherenkov_3band_wavelength_debug.txt # TOPAS model definition file
+├── 📋 README_Cherenkov_3band_wavelength_debug.md  # TOPAS model documentation
+└── 📖 README.md                           # This file
 ```
 
 ---
 
-## File Descriptions
+## 👥 Team
 
-### Python Scripts
+Developed by students of the **Biomedical Engineering Department, Cairo University**
+under the supervision of **Dr. Sherif ElGohary**
 
-**adaptive_dose_modulation.py** (Main Implementation)
-- Literature-based tumor oxygenation model
-- OER-based adaptive dose modulation
-- Biological response modeling
-- Statistical validation
-- Publication figure generation
+| 👤 Name | 🔗 LinkedIn | 💻 GitHub |
+|---------|------------|----------|
+| <!-- Mazen Mohamed --> | [LinkedIn](#) | [GitHub](#) |
+| <!-- Aya Sayed --> | [LinkedIn](#) | [GitHub](#) |
+| <!-- Maryam Moustafa --> | [LinkedIn](#) | [GitHub](#) |
+| <!-- Engy Wael --> | [LinkedIn](#) | [GitHub](#) |
+| <!-- Engy Mohamed --> | [LinkedIn](#) | [GitHub](#) |
 
-**forward_model.py** (Optical Transport)
-- Optical properties class
-- Beer-Lambert attenuation
-- Gaussian diffusion modeling
-- Spectral unmixing
-- Data loading utilities
-
-### Data Files
-
-**CherenkovSource.npy** (50×50×50 array)
-- Synthetic Cherenkov photon distribution
-- Exponential attenuation with depth
-- Central peak for beam geometry
-
-**Dose.npy** (50×50×50 array)
-- Synthetic radiation dose distribution
-- Gaussian profile with central maximum
-- Clinically realistic dose ranges
-
-**metadata.json**
-- Voxel dimensions
-- Monte Carlo histories (synthetic)
-- Cherenkov-dose correlation
-
-**optical_config.json**
-- Wavelengths: 630, 700, 850 nm
-- Extinction coefficients (HbO₂, Hb)
-- Reduced scattering coefficients
-
-### Results
-
-**results.json** - Complete validated outcomes including:
-- Initial/final StO₂ statistics
-- Hypoxic fraction evolution
-- Dose modulation metrics
-- Statistical validation (t-test, p-value, effect size)
-- Literature references
-- Processing metadata
-
-**publication_figure.png** - 12-panel figure showing:
-- Initial/optimized dose maps
-- Initial/post-treatment oxygenation
-- Cumulative dose boost
-- Reoxygenation kinetics
-- Spatial StO₂ evolution
-- Dose escalation profile
-- Therapeutic summary
-- Literature citations
+> 📌 **Fill in names, LinkedIn profile URLs, and GitHub profile URLs above before publishing.**
 
 ---
 
-## Validation Checklist
+<div align="center">
 
-**Code Quality:**
-- [x] Well-commented with docstrings
-- [x] Reproducible (fixed seed)
-- [x] Validated outputs
-- [x] No hardcoded paths
+🏛️ **Cairo University · Faculty of Engineering · Biomedical Engineering Department**
 
-**Scientific Rigor:**
-- [x] Literature-validated parameters
-- [x] Statistical significance (p < 0.001)
-- [x] Effect size calculated
-- [x] Multiple validation checks
+Supervised by Dr. Sherif ElGohary — [Sh.elgohary@eng1.cu.edu.eg](mailto:Sh.elgohary@eng1.cu.edu.eg)
 
-**Documentation:**
-- [x] Complete methods description
-- [x] Usage instructions
-- [x] Literature references
-- [x] Computational phantom disclosure
-
-**Publication Readiness:**
-- [x] Publication-quality figures (300 DPI)
-- [x] Comprehensive results JSON
-- [x] Ready for Methods section
-- [x] Ready for Results section
-- [x] Supplementary TOPAS validation included
-
----
-
-## Supplementary Material
-
-### TOPAS Monte Carlo Validation
-
-Located in [`supplementary/`](supplementary/) directory:
-
-**Purpose:** Validate framework with real TOPAS Monte Carlo radiation physics simulation
-
-**Key Findings:**
-- ✓ Framework successfully processes real Monte Carlo data
-- ✓ Proves technical feasibility with actual particle transport physics
-- ⚠ Current TOPAS parameters limit clinical efficacy (3.3% vs 86% reduction)
-
-**Why weaker results?**
-- Insufficient particle histories (10⁷ vs needed 10⁹)
-- Sparse tumor geometry (748 vs 13,000 voxels)
-- Low dose deposition requiring extreme rescaling
-
-**Documentation:** See [`supplementary/TOPAS_VALIDATION.md`](supplementary/TOPAS_VALIDATION.md) for:
-- Detailed technical analysis
-- Problem identification
-- Optimized TOPAS configuration for future work
-- Validation checklist
-- Scientific interpretation
-
-**Recommendation for Publication:**
-- **Main manuscript:** Present synthetic computational phantom results (86% reduction)
-- **Supplementary:** Include TOPAS validation as proof of feasibility
-- **Discussion:** Frame as "technical validation with future optimization path"
-
----
-
-## Support & Contact
-
-For questions or issues:
-- **Documentation:** See METHODS_DOCUMENTATION.md
-- **Email:** [your.email@institution.edu]
-- **Issues:** [repository-url]/issues
-
----
-
-## Acknowledgments
-
-- Literature sources for parameter validation
-- [Your institution/funding sources]
-- Medical Physics research community
-
----
-
-## License
-
-MIT License
-
-Copyright (c) 2026 [Your Name]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so.
-
----
-
-**Status:** ✓ PUBLICATION READY  
-**Version:** 1.0  
-**Last Updated:** February 2026
-
-*All validation criteria met • Reproducible results • Literature-validated parameters*
+</div>
