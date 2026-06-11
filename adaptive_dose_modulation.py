@@ -5,6 +5,7 @@ Optimized Adaptive Dose Modulation - Literature-Validated Parameters
 ======================================================================
 Uses UPPER RANGE of published clinical parameters (still conservative)
 
+
 All parameters sourced from peer-reviewed literature:
 - Hypoxic fraction: 28% (Vaupel & Mayer 2007: reported 15-40%)
 - Dose response: 0.025% StO₂/Gy (Tannock 1998: 0.02-0.03%)
