@@ -110,7 +110,8 @@ Results on the **TOPAS TumorPhantom** (10⁷ particle histories — low-dose str
 <!-- 📌 INSERT FIGURE HERE: calibration scatter plot (before/after side-by-side) -->
 <!-- Suggested filename: figures/fig3_calibration_scatter.png -->
 
-![Calibration Scatter](figures/fig3_calibration_scatter.png)
+<img width="1600" height="691" alt="Calibration" src="https://github.com/user-attachments/assets/419d9cef-751b-4869-a15f-badfdd5560a0" />
+
 
 ---
 
@@ -122,7 +123,22 @@ Results on the **TOPAS TumorPhantom** (10⁷ particle histories — low-dose str
 <!-- 📌 INSERT FIGURE HERE: confusion matrix + bar chart of Precision / Recall / F1 -->
 <!-- Suggested filename: figures/fig4_hypoxia_classification.png -->
 
-![Hypoxia Classification](figures/fig4_hypoxia_classification.png)
+<img width="1600" height="678" alt="Hypoxia" src="https://github.com/user-attachments/assets/c7ad9b3c-76dc-4463-823a-6a32151680c3" />
+
+
+---
+
+### 🌊 NIRFASTerFF Optical Diffusion — Surface Fluence Maps
+
+> Phase II solves the photon diffusion equation using the Cherenkov source field from TOPAS as input.
+> The three spectral channels (630, 700, 850 nm) show characteristic spatial attenuation — strongest at 630 nm due to higher haemoglobin absorption — and feed directly into the virtual ICCD camera model.
+
+<!-- 📌 INSERT FIGURE HERE: wavelength-resolved surface fluence maps at 630 / 700 / 850 nm -->
+<!-- Suggested filename: figures/fig_nirfast_fluence.png -->
+<!-- Content: side-by-side or 3-panel surface fluence output from NIRFASTerFF on the TOPAS TumorPhantom geometry -->
+
+<img width="1600" height="599" alt="NIRFASR + TOPAS" src="https://github.com/user-attachments/assets/5ff45d79-8a1b-48a5-9e5a-c48585139870" />
+
 
 ---
 
@@ -134,7 +150,8 @@ Results on the **TOPAS TumorPhantom** (10⁷ particle histories — low-dose str
 <!-- 📌 INSERT FIGURE HERE: pre/post StO₂ maps + enhancement magnitude + transition map (4-panel Figure 5) -->
 <!-- Suggested filename: figures/fig5_dose_enhancement.png -->
 
-![Dose Enhancement](figures/fig5_dose_enhancement.png)
+<img width="1600" height="1041" alt="Enhancement" src="https://github.com/user-attachments/assets/66ac40b0-3b0c-405b-906e-7d366b556224" />
+
 
 ---
 
