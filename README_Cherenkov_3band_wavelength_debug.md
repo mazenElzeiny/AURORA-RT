@@ -2,6 +2,7 @@
 
 This README describes the validated model in Cherenkov_3band_wavelength_debug.txt.
 
+
 ## Most Important: Model Dimensions
 
 - World physical size: 2.0 m x 2.0 m x 2.0 m
