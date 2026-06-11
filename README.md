@@ -42,34 +42,30 @@ Integrating TOPAS Monte Carlo · NIRFAST optical diffusion · Virtual ICCD sensi
 
 > Four sequential phases — from beam delivery to adaptive dose update.
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        AURORA-RT  PIPELINE                          │
-└─────────────────────────────────────────────────────────────────────┘
+<div align="center">
 
-  ┌──────────────┐     Cherenkov      ┌──────────────┐
-  │  ⚛️  PHASE I  │   photon maps  ──▶ │  🌊 PHASE II  │
-  │              │                    │              │
-  │   TOPAS MC   │   6 MV beam        │   NIRFAST    │
-  │   Geant4     │   Frank–Tamm       │   diffusion  │
-  │              │   Dose maps    ──▶ │   + ICCD cam │
-  └──────────────┘                    └──────┬───────┘
-                                             │  Raw RGB
-                                             ▼  (noisy)
-  ┌──────────────┐     Hypoxia        ┌──────────────┐
-  │  🎯 PHASE IV  │   mask + dose  ◀── │  🧮 PHASE III │
-  │              │                    │              │
-  │  Adaptive    │   StO₂ maps        │  Red Ref     │
-  │  dose boost  │   (calibrated) ◀── │  melanin fix │
-  │  α = 0.12    │                    │  NNLS unmix  │
-  └──────┬───────┘                    └──────────────┘
-         │
-         ▼  Feed back to next fraction
-   ┌───────────┐
-   │ ✅ 63.38% │  hypoxic burden reduction
-   │ reduction │  (142 → 52 voxels)
-   └───────────┘
+```mermaid
+flowchart LR
+    A["⚛️ **Phase I**\nTOPAS MC\nGeant4 · 6 MV"]:::phase1
+    B["🌊 **Phase II**\nNIRFAST\ndiffusion + ICCD"]:::phase2
+    C["🧮 **Phase III**\nRed Ref + NNLS\nmelanin fix"]:::phase3
+    D["🎯 **Phase IV**\nDose boost\nα = 0.12"]:::phase4
+    R["✅ **63.38%**\nhypoxia reduction"]:::result
+
+    A -- "Cherenkov" --> B
+    B -- "Raw RGB" --> C
+    C -- "StO₂ map" --> D
+    D -. "↻ feedback to\nnext fraction" .-> A
+    D --> R
+
+    classDef phase1 fill:#EEEDFE,stroke:#534AB7,color:#3C3489
+    classDef phase2 fill:#E1F5EE,stroke:#0F6E56,color:#085041
+    classDef phase3 fill:#FAECE7,stroke:#993C1D,color:#712B13
+    classDef phase4 fill:#FAEEDA,stroke:#854F0B,color:#633806
+    classDef result  fill:#EAF3DE,stroke:#3B6D11,color:#27500A
 ```
+
+</div>
 
 ---
 
