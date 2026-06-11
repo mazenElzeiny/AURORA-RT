@@ -23,8 +23,10 @@ Integrating TOPAS Monte Carlo · NIRFAST optical diffusion · Virtual ICCD sensi
 
 ## 📋 Table of Contents
 
+- [Pipeline at a Glance](#️-pipeline-at-a-glance)
 - [Overview](#-overview)
 - [Key Results](#-key-results)
+- [Results Visualized](#-results-visualized)
 - [TOPAS Model Configuration](#-topas-model-configuration)
 - [Setup Instructions](#️-setup-instructions)
   - [1. Clone NIRFAST](#1-clone-nirfast)
@@ -33,6 +35,41 @@ Integrating TOPAS Monte Carlo · NIRFAST optical diffusion · Virtual ICCD sensi
 - [Running the Demo](#-running-the-demo)
 - [Project Structure](#-project-structure)
 - [Team](#-team)
+
+---
+
+## 🗺️ Pipeline at a Glance
+
+> Four sequential phases — from beam delivery to adaptive dose update.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        AURORA-RT  PIPELINE                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────┐     Cherenkov      ┌──────────────┐
+  │  ⚛️  PHASE I  │   photon maps  ──▶ │  🌊 PHASE II  │
+  │              │                    │              │
+  │   TOPAS MC   │   6 MV beam        │   NIRFAST    │
+  │   Geant4     │   Frank–Tamm       │   diffusion  │
+  │              │   Dose maps    ──▶ │   + ICCD cam │
+  └──────────────┘                    └──────┬───────┘
+                                             │  Raw RGB
+                                             ▼  (noisy)
+  ┌──────────────┐     Hypoxia        ┌──────────────┐
+  │  🎯 PHASE IV  │   mask + dose  ◀── │  🧮 PHASE III │
+  │              │                    │              │
+  │  Adaptive    │   StO₂ maps        │  Red Ref     │
+  │  dose boost  │   (calibrated) ◀── │  melanin fix │
+  │  α = 0.12    │                    │  NNLS unmix  │
+  └──────┬───────┘                    └──────────────┘
+         │
+         ▼  Feed back to next fraction
+   ┌───────────┐
+   │ ✅ 63.38% │  hypoxic burden reduction
+   │ reduction │  (142 → 52 voxels)
+   └───────────┘
+```
 
 ---
 
@@ -64,6 +101,44 @@ Results on the **TOPAS TumorPhantom** (10⁷ particle histories — low-dose str
 | 💉 Hypoxic burden reduction (α=0.12) | **63.38%** (142 → 52 voxels) |
 
 > Computational benchmark under idealized conditions (comparative reference): R²=0.97, MAE=0.80 pp, hypoxia reduction 86.7% over 10 fractions.
+
+---
+
+## 📸 Results Visualized
+
+### 🔧 Calibration Effect — Before vs After
+
+> Raw StO₂ recovery suffered severe systematic bias (MAE = 78.85 pp) in the low-dose TOPAS regime.
+> Affine calibration reduced this to **MAE = 1.55 pp (R² = 0.964)** — bringing predictions tightly onto the identity line.
+
+<!-- 📌 INSERT FIGURE HERE: calibration scatter plot (before/after side-by-side) -->
+<!-- Suggested filename: figures/fig3_calibration_scatter.png -->
+
+![Calibration Scatter](figures/fig3_calibration_scatter.png)
+
+---
+
+### 🎯 Hypoxia Classification Performance
+
+> At the clinical 70% StO₂ threshold, the calibrated pipeline achieves near-perfect separation
+> between normoxic and hypoxic voxels — with only **1 false positive** and **3 false negatives** out of 1534 voxels.
+
+<!-- 📌 INSERT FIGURE HERE: confusion matrix + bar chart of Precision / Recall / F1 -->
+<!-- Suggested filename: figures/fig4_hypoxia_classification.png -->
+
+![Hypoxia Classification](figures/fig4_hypoxia_classification.png)
+
+---
+
+### 💉 Adaptive Dose Enhancement — Hypoxic Burden Reduction
+
+> Locked enhancement (α = 0.12) selectively boosted dose to pre-identified hypoxic voxels only.
+> **90 voxels reoxygenated**, 52 remained persistently hypoxic — a **63.38% net reduction**.
+
+<!-- 📌 INSERT FIGURE HERE: pre/post StO₂ maps + enhancement magnitude + transition map (4-panel Figure 5) -->
+<!-- Suggested filename: figures/fig5_dose_enhancement.png -->
+
+![Dose Enhancement](figures/fig5_dose_enhancement.png)
 
 ---
 
