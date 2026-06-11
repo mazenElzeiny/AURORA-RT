@@ -3,6 +3,7 @@ CLINICAL TOPAS DATA - Adaptive Radiotherapy
 Using rescaled dose to clinical levels (2 Gy/fraction)
 Patient: 60x60x60, Tumor: 40x40x40, Hypoxic: 20x20x20
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 import json
